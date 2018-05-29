@@ -20,7 +20,7 @@ public class FbProcessor {
             return;
         }
         AjaxBooleanResponse<Object> response = WebClient.builder()
-                .baseUrl("http://ec2-18-207-166-235.compute-1.amazonaws.com/app-service/services/adgroup/test_saveorupdate")
+                .baseUrl("http://Integrati-AppLoadB-7OP5J773Z3YL-812415291.us-east-1.elb.amazonaws.com/app-service/services/adgroup/test_saveorupdate")
                 .filter(logRequest()).build().post()
                 .uri(builder -> builder
                         .queryParam("accountIdInTarget", "359773042")
