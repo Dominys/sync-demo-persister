@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,6 +20,8 @@ public class FbProcessor {
             log.warn("Got missed ad with id {}", message.getId());
             return;
         }
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         AjaxBooleanResponse<Object> response = WebClient.builder()
                 .baseUrl("http://Integrati-AppLoadB-7OP5J773Z3YL-812415291.us-east-1.elb.amazonaws.com/app-service/services/adgroup/test_saveorupdate")
                 .filter(logRequest()).build().post()
@@ -32,10 +35,11 @@ public class FbProcessor {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<AjaxBooleanResponse<Object>>() {})
                 .block();
+        stopWatch.stop();
         if (response.isSuccess()) {
-            log.info("Success {}", response.getData());
+            log.info("Success, took : {} {}", stopWatch.getLastTaskTimeMillis(), response.getData());
         } else {
-            log.error("Failed {}", response.getMessage());
+            log.error("Failed, took : {} {}",  stopWatch.getLastTaskTimeMillis(), response.getMessage());
         }
 
     }
