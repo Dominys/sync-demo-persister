@@ -32,6 +32,7 @@ public class FbProcessor {
         log.info("Start job {} with ids ", message.getJobId());
         if (Status.MISSED.equals(message.getStatus())) {
             log.warn("Got missed ad with id {}", message.getId());
+            kafkaTemplate.send("processed-ads", message);
             return;
         }
         StopWatch stopWatch = new StopWatch();
