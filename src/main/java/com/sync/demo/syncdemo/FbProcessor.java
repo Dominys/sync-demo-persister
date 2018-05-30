@@ -2,29 +2,30 @@ package com.sync.demo.syncdemo;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
 public class FbProcessor {
 
     RestTemplate restTemplate = new RestTemplate();
+    private static final AtomicInteger counter = new AtomicInteger(0);
+
+    @Autowired
+    private KafkaTemplate<String, DownloadResponse> kafkaTemplate;
 
     @KafkaListener(topics = "downloaded-ads", groupId = "downloaded-ads", containerFactory = "kafkaListenerContainerFactory")
     public void process(DownloadResponse message) {
@@ -59,11 +60,13 @@ public class FbProcessor {
 //                .bodyToMono(new ParameterizedTypeReference<AjaxBooleanResponse<Object>>() {})
 //                .block();
         stopWatch.stop();
+        log.info("Processed : {}", counter.incrementAndGet());
         if (responseEntity.getBody().isSuccess()) {
             log.info("Success, took : {} {}", stopWatch.getLastTaskTimeMillis(), responseEntity.getBody().getData());
         } else {
             log.error("Failed, took : {} {}",  stopWatch.getLastTaskTimeMillis(), responseEntity.getBody().getMessage());
         }
+        kafkaTemplate.send("processed-ads", message);
 
     }
 
