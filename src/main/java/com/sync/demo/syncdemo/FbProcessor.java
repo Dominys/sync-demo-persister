@@ -43,7 +43,7 @@ public class FbProcessor {
         httpHeaders.add("password", "s2aryd");
 
         ResponseEntity<AjaxBooleanResponse<Object>> responseEntity = restTemplate
-                .exchange("http://Integrati-AppLoadB-1GYMR41EI6IXW-1512008786.us-east-1.elb.amazonaws.com/app-service/services/adgroup/test_saveorupdate?accountIdInTarget={accountIdInTarget}&jobId={jobId}",
+                .exchange("http://Integrati-AppLoadB-S80O20G2XIKO-946795580.us-east-1.elb.amazonaws.com/app-service/services/adgroup/test_saveorupdate?accountIdInTarget={accountIdInTarget}&jobId={jobId}",
                         HttpMethod.POST, new HttpEntity<>(message.getData(), httpHeaders),
                         new ParameterizedTypeReference<AjaxBooleanResponse<Object>>() {},
                         ImmutableMap.of("accountIdInTarget", "359773042", "jobId", 123L));
